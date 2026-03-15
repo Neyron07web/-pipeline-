@@ -1,6 +1,5 @@
 import cv2
 
-# список изображений
 images = [
     "images/level1.png",
     "images/level2.png",
@@ -10,53 +9,78 @@ images = [
 ]
 
 index = 0
+original = cv2.imread(images[index])
 
-img = cv2.imread(images[index])
-current = img.copy()
+cv2.namedWindow("Image Processing Lab")
 
-print("Управление:")
-print("1 - contrast (контраст)")
-print("2 - threshold (бинаризация)")
-print("3 - blur (размытие)")
-print("4 - median (шум)")
-print("5 - edges (границы)")
-print("r - reset image (начать заново)")
-print("n - next image (следующая картинка)")
-print("q - exit (выход)")
+
+def nothing(x):
+    pass
+
+
+# создаём ползунки
+cv2.createTrackbar("Contrast", "Image Processing Lab", 0, 20, nothing)
+cv2.createTrackbar("Blur", "Image Processing Lab", 0, 10, nothing)
+cv2.createTrackbar("Median", "Image Processing Lab", 0, 10, nothing)
+cv2.createTrackbar("Edges", "Image Processing Lab", 0, 200, nothing)
+cv2.createTrackbar("Threshold", "Image Processing Lab", 120, 140, nothing)
+
+
+print("N - следующая картинка")
+print("ESC - выход")
 
 while True:
 
-    cv2.imshow("Image Processing Lab", current)
+    contrast = 1 + cv2.getTrackbarPos("Contrast", "Image Processing Lab") / 10
+    blur = cv2.getTrackbarPos("Blur", "Image Processing Lab")
+    median = cv2.getTrackbarPos("Median", "Image Processing Lab")
+    edges = cv2.getTrackbarPos("Edges", "Image Processing Lab")
+    threshold = cv2.getTrackbarPos("Threshold", "Image Processing Lab")
 
-    key = cv2.waitKey(0)
+    img = original.copy()
 
-    if key == ord('1'):  # контраст
-        current = cv2.convertScaleAbs(current, alpha=2.5, beta=-120)
+    # contrast
+    img = cv2.convertScaleAbs(img, alpha=contrast, beta=0)
 
-    elif key == ord('2'):  # бинаризация
-        gray = cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)
-        _, current = cv2.threshold(gray, 120, 255, cv2.THRESH_BINARY)
+    # blur
+    if blur > 0:
+        k = blur * 4 + 1
+        img = cv2.GaussianBlur(img, (k, k), 0)
 
-    elif key == ord('3'):  # размытие
-        current = cv2.GaussianBlur(current, (5, 5), 0)
+    # median
+    if median > 0:
+        k = median * 4 + 1
+        img = cv2.medianBlur(img, k)
 
-    elif key == ord('4'):  # шум
-        current = cv2.medianBlur(current, 5)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    elif key == ord('5'):  # поиск границ
-        gray = cv2.cvtColor(current, cv2.COLOR_BGR2GRAY)
-        current = cv2.Canny(gray, 80, 200)
+    # threshold
+    if threshold > 0:
+        _, gray = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY_INV)
 
-    elif key == ord('r') or key == ord('к'):  # сброс
-        img = cv2.imread(images[index])
-        current = img.copy()
+    # edges
+    if edges > 0:
+        gray = cv2.Canny(gray, 50 + edges * 10, 100 + edges * 20)
 
-    elif key == ord('n') or key == ord('т'):  # следующая картинка
-        index = (index + 1) % len(images)
-        img = cv2.imread(images[index])
-        current = img.copy()
+    cv2.putText(gray, f"Level {index+1}", (20, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, 255, 2)
+    cv2.imshow("Image Processing Lab", gray)
 
-    elif key == ord('q') or key == ord('й'):  # выход
+    key = cv2.waitKey(30)
+
+    if key == 27:
         break
+
+    if key == ord('n'):
+
+        index = (index + 1) % len(images)
+
+        original = cv2.imread(images[index])
+
+        # сброс ползунков
+        cv2.setTrackbarPos("Contrast", "Image Processing Lab", 10)
+        cv2.setTrackbarPos("Blur", "Image Processing Lab", 0)
+        cv2.setTrackbarPos("Median", "Image Processing Lab", 0)
+        cv2.setTrackbarPos("Edges", "Image Processing Lab", 0)
+        cv2.setTrackbarPos("Threshold", "Image Processing Lab", 0)
 
 cv2.destroyAllWindows()

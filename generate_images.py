@@ -26,7 +26,7 @@ cv2.imwrite("images/level3.png", img)
 # уровень 4 (размытие + слабый контраст)
 img = np.full((h, w), 125, dtype=np.uint8)
 cv2.putText(img, "764", (180, 220), cv2.FONT_HERSHEY_SIMPLEX, 2, 123, 5)
-img = cv2.GaussianBlur(img, (11, 11), 0)
+img = cv2.GaussianBlur(img, (21, 21), 0)
 cv2.imwrite("images/level4.png", img)
 
 # уровень 5 (шум + тонкие линии)
