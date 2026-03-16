@@ -34,7 +34,7 @@
 1. Клонировать репозиторий:  
   git clone <URL_репозитория>
 2. Установить зависимости:
-  pip install opencv-python pillow numpy
-3. Добавить изображенияв папку images/ (по умолчанию используются c63.jpg, cat.jpg, city.jpg, m5f10.jpg, x5m.jpg
-4. Запустить игру:
+   pip install opencv-python pillow numpy
+4. Добавить изображенияв папку images/ (по умолчанию используются c63.jpg, cat.jpg, city.jpg, m5f10.jpg, x5m.jpg
+5. Запустить игру:
    python filter_game.py
